@@ -67,8 +67,18 @@ class Employees_manager:
 
 
     def load_employees(self):
-        log.info("Getting all existed employees")
+        log.info(f"Getting all existed employees")
+        
+        # Check if there is an employees dir
+        if not osp.exists(self.employees_dir):
+            log.info("Creating employees directory")
+            os.makedirs(self.employees_dir)
+        
+        # Get all saved emplyees directories
         saved_employees = os.listdir(self.employees_dir)
+        if not len(saved_employees): return None
+
+        # Check if employees directories are valid. If so, add them
         for emp in saved_employees:
             img_path = osp.join(self.employees_dir, emp, "{}.jpg".format(emp))
             if osp.exists(img_path):
