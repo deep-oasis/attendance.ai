@@ -67,7 +67,7 @@ class Employees_manager:
 
 
     def load_employees(self):
-        log.info(f"Getting all existed employees")
+        log.info("Getting all existed employees")
         
         # Check if there is an employees dir
         if not osp.exists(self.employees_dir):
