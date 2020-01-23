@@ -21,7 +21,7 @@ class Recognizer:
         self.nb_iters = nb_iters
         self.employees = employees
 
-        self.predictor = frm.face_recognition_models.pose_predictor_five_point_model_location()
+        self.predictor = frm.pose_predictor_five_point_model_location()
         if self.model_type == "large": 
             self.predictor = frm.face_recognition_models.pose_predictor_model_location()
 
@@ -71,7 +71,7 @@ class Recognizer:
     def load_faces(self):
         for i, emp in enumerate(self.employees):
             log.info("Loading {}'s face image".format(emp.name))
-            img = self.load_img(emp.image_path)
+            img = self.load_img(emp.img_path)
             self.employees[i].encoded_face = self.faces_encodings_from_img(img)[0]
 
 
