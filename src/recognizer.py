@@ -70,14 +70,14 @@ class Recognizer:
 
     def load_faces(self):
         for i, emp in enumerate(self.employees):
-            log.info(f"Loading {emp.name}'s face image")
+            log.info("Loading {}'s face image".format(emp.name))
             img = self.load_img(emp.image_path)
             self.employees[i].encoded_face = self.faces_encodings_from_img(img)[0]
 
 
     def compare_faces(self, employee, frame_faces, tolerance=0.6):
         if True in list(np.linalg.norm(frame_faces - employee.encoded_face, axis=1) <= tolerance):
-            log.info(f"{employee.name} was found!")
+            log.info("{} was found!".format(employee.name))
             employee.add_timestamp()
 
     # def compare_faces(self, face_encoding_to_check, tolerance=0.6):
@@ -89,9 +89,9 @@ class Recognizer:
 
 
     def analyze_frame(self, face_loc_list):
-        log.info(f"Found {len(face_loc_list)} faces")
+        log.info("Found {} faces".format(len(face_loc_list)))
         faces_encodings = self.faces_encodings_from_img(self.np_output, face_loc_list)
-        found_list = [self.compare_faces(f) for f in faces_encodings]
+        found_list = [self.compare_faces(emp, faces_encodings) for emp in self.employees]
             
         if True in found_list:
             name = "Barack Obama"

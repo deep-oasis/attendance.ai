@@ -17,12 +17,12 @@ class Config:
     EMPLOYEES_DIR = osp.join(BASE_DIR, 'employees')
 
     @staticmethod
-    def employee_img_path(name): return osp.join(Config.EMPLOYEES_DIR, name, f"{name}.jpg")
+    def employee_img_path(name): return osp.join(Config.EMPLOYEES_DIR, name, "{}.jpg".format(name))
     
     @staticmethod
-    def employee_encoded_img_path(name): return osp.join(Config.EMPLOYEES_DIR, name, f"{name}.npy")
+    def employee_encoded_img_path(name): return osp.join(Config.EMPLOYEES_DIR, name, "{}.npy".format(name))
     
     @staticmethod
-    def employee_data_path(name): return osp.join(Config.EMPLOYEES_DIR, name, f"{name}.json")
+    def employee_data_path(name): return osp.join(Config.EMPLOYEES_DIR, name, "{}.json".format(name))
         
     

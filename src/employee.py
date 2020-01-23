@@ -21,16 +21,16 @@ class Employee:
         
         self.load_encoding()
         self.load_data()
-        log.info(f"Employee named {self.name} was loaded")
+        log.info("Employee named {} was loaded".format(self.name))
 
     def save_data(self):
-        log.info(f"Saving {self.name}'s data")
+        log.info("Saving {}'s data".format(self.name))
         with open(self.data_path, 'w') as file:
             json.dump(self.data, file)
 
 
     def load_data(self):
-        log.info(f"Loading {self.name}'s data")
+        log.info("Loading {}'s data".format(self.name))
         if not osp.exists(self.data_path):
             log.info("No employee data was found")
             return
@@ -39,21 +39,23 @@ class Employee:
 
 
     def load_encoding(self):
-        log.info(f"Loading {self.name}'s face encoding")
+        log.info("Loading {}'s face encoding".format(self.name))
         if not osp.exists(self.encoded_img_path):
             log.info("No face encoding was found")
             return
         self.encoded_face = np.load(self.encoded_img_path)
 
     def save_encoded_face(self):
-        log.info(f"Saving {self.name}'s face encoding")
+        log.info("Saving {}'s face encoding".format(self.name))
         if self.encoded_face:
             np.save(self.encoded_img_path, self.encoded_face)
 
 
     def add_timestamp(self):
         if not self.in_timestamp:
-            log.info(f"Welcome to work {self.name}!")
+            log.info("Welcome to work {}!".format(self.name))
+
+
 
 
 class Employees_manager:
@@ -65,10 +67,10 @@ class Employees_manager:
 
 
     def load_employees(self):
-        log.info(f"Getting all existed employees")
+        log.info("Getting all existed employees")
         saved_employees = os.listdir(self.employees_dir)
         for emp in saved_employees:
-            img_path = osp.join(self.employees_dir, emp, f"{emp}.jpg")
+            img_path = osp.join(self.employees_dir, emp, "{}.jpg".format(emp))
             if osp.exists(img_path):
                 self.employees.append(Employee(emp))
 
