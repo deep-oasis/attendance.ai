@@ -57,7 +57,7 @@ class Recognizer:
         if not known_face_locations:
             face_locations = self.face_detector(face_image)
         else:
-            face_locations = [self.css_to_rect(face_location) for face_location in face_locations]
+            face_locations = [self.css_to_rect(face_location) for face_location in known_face_locations]
             
         pose_predictor = dlib.shape_predictor(self.predictor)
         return [pose_predictor(face_image, face_location) for face_location in face_locations]
