@@ -15,6 +15,7 @@ class Config:
     BASE_DIR = osp.realpath('.')
     STATIC_DIR = osp.join(BASE_DIR, 'static')
     EMPLOYEES_DIR = osp.join(BASE_DIR, 'employees')
+    ARCHIVE_DIR = osp.join(BASE_DIR, 'archive')
 
     @staticmethod
     def employee_img_path(name): return osp.join(Config.EMPLOYEES_DIR, name, "{}.jpg".format(name))
@@ -25,4 +26,9 @@ class Config:
     @staticmethod
     def employee_data_path(name): return osp.join(Config.EMPLOYEES_DIR, name, "{}.json".format(name))
         
+    @staticmethod
+    def employee_archive_in_path(name): return osp.join(Config.ARCHIVE_DIR, name, "%d-%m-%Y_%H-%M-%S_IN.jpg")
+    
+    @staticmethod
+    def employee_archive_out_path(name): return osp.join(Config.ARCHIVE_DIR, name, "%d-%m-%Y_%H-%M-%S_OUT.jpg")
     

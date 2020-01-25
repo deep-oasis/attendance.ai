@@ -5,6 +5,7 @@ from PIL import Image
 from os.path import basename
 import face_recognition_models as frm
 from src.config import log
+from datetime import datetime
 
 
 class Recognizer:
@@ -78,24 +79,14 @@ class Recognizer:
     def compare_faces(self, employee, frame_faces, tolerance=0.6):
         if True in list(np.linalg.norm(frame_faces - employee.encoded_face, axis=1) <= tolerance):
             log.info("{} was found!".format(employee.name))
-            employee.add_timestamp()
-
-    # def compare_faces(self, face_encoding_to_check, tolerance=0.6):
-    #     # Returns face names was found
-    #     matches = list(np.linalg.norm(self.face_enc_list - face_encoding_to_check, axis=1) <= tolerance)
-    #     face = [i for i, x in enumerate(matches) if x]
-    #     if len(face) and len(face) < 1: return self.face_names_list[face[0]]
-    #     return None
+            employee.add_timestamp(self.np_output, datetime.now())
 
 
     def analyze_frame(self, face_loc_list):
         log.info("Found {} faces".format(len(face_loc_list)))
         faces_encodings = self.faces_encodings_from_img(self.np_output, face_loc_list)
-        found_list = [self.compare_faces(emp, faces_encodings) for emp in self.employees]
-            
-        if True in found_list:
-            name = "Barack Obama"
-            print("I see someone named {}!".format(name))
+        for emp in self.employees:
+            self.compare_faces(emp, faces_encodings) 
 
 
     def run(self):

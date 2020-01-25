@@ -4,6 +4,9 @@ import os.path as osp
 import os
 import json
 from src.config import Config, log
+from time import strftime, time, sleep
+from datetime import datetime
+from threading import Timer
 
 
 
@@ -22,6 +25,7 @@ class Employee:
         self.load_encoding()
         self.load_data()
         log.info("Employee named {} was loaded".format(self.name))
+
 
     def save_data(self):
         log.info("Saving {}'s data".format(self.name))
@@ -51,10 +55,29 @@ class Employee:
             np.save(self.encoded_img_path, self.encoded_face)
 
 
-    def add_timestamp(self):
+    def add_timestamp(self, frame, timestamp):
+        self.last_frame = frame
+        self.last_timestamp = timestamp
         if not self.in_timestamp:
-            log.info("Welcome to work {}!".format(self.name))
+            self.set_arrival()
 
+
+    def set_arrival(self):
+        self.in_timestamp = self.last_timestamp
+        in_filename = strftime(Config.employee_archive_in_path(self.name))
+        log.info("Saving checkin image: {}".format(in_filename))
+        Image.fromarray(self.last_frame).save(in_filename, 'JPG')
+
+
+    def set_leaving(self):
+        if self.in_timestamp == self.last_timestamp:
+            self.in_timestamp = None
+            log.warning("Only checking was found for {}".format(self.name))
+            return
+        out_filename = self.last_timestamp.strftime(Config.employee_archive_out_path(self.name))
+        log.info("Saving checkout image: {}".format(out_filename))
+        Image.fromarray(self.last_frame).save(out_filename, 'JPG')
+        self.in_timestamp = self.last_timestamp = None
 
 
 
@@ -64,6 +87,21 @@ class Employees_manager:
         self.employees_dir = self.conf.EMPLOYEES_DIR 
         self.employees = []
         self.load_employees()
+        self.cleanup_time_obj = datetime.strptime("23:59:59", '%H:%M:%S')
+        self.set_timer()
+
+
+    def set_timer(self):
+        delta = self.cleanup_time_obj - datetime.now() 
+        self.timer = Timer(delta.seconds, self.set_leavings)
+        self.timer.start()
+
+
+    def set_leavings(self):
+        for emp in self.employees:
+            emp.set_leaving()
+        sleep(1)
+        self.set_timer()
 
 
     def load_employees(self):
