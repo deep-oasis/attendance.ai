@@ -70,10 +70,11 @@ class Recognizer:
 
 
     def load_faces(self):
-        for i, emp in enumerate(self.employees):
-            log.info("Loading {}'s face image".format(emp.name))
-            img = self.load_img(emp.img_path)
-            self.employees[i].encoded_face = self.faces_encodings_from_img(img)[0]
+        for emp in self.employees:
+            if not emp.encoded_face:
+                log.info("{}'s face did not encoded yet. encoding and saving.".format(emp.name))
+                img = self.load_img(emp.img_path)
+                emp.save_encoded_face(self.faces_encodings_from_img(img)[0])
 
 
     def compare_faces(self, employee, frame_faces, tolerance=0.6):

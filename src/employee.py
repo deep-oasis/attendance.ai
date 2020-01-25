@@ -20,10 +20,9 @@ class Employee:
         self.encoded_face = None
         self.data = None
         self.in_timestamp = None
-        self.out_timestamp = None
-        
+        self.last_timestamp = None
+
         self.load_encoding()
-        self.load_data()
         log.info("Employee named {} was loaded".format(self.name))
 
 
@@ -31,6 +30,7 @@ class Employee:
         log.info("Saving {}'s data".format(self.name))
         with open(self.data_path, 'w') as file:
             json.dump(self.data, file)
+        del self.data
 
 
     def load_data(self):
@@ -46,39 +46,55 @@ class Employee:
         log.info("Loading {}'s face encoding".format(self.name))
         if not osp.exists(self.encoded_img_path):
             log.info("No face encoding was found")
-            return
-        self.encoded_face = np.load(self.encoded_img_path)
+        else: self.encoded_face = np.load(self.encoded_img_path)
 
-    def save_encoded_face(self):
+
+    def save_encoded_face(self, encoded_face):
         log.info("Saving {}'s face encoding".format(self.name))
-        if self.encoded_face:
-            np.save(self.encoded_img_path, self.encoded_face)
+        self.encoded_face = encoded_face
+        np.save(self.encoded_img_path, self.encoded_face)
+
+
+    def save_img_to_archive(self, img_path, img):
+        log.info("Saving image: {}".format(img_path))
+        Image.fromarray(img).save(img_path)
+
+
+    def cache_checkin(self, timestamp): 
+        self.load_data()
+        self.data[Config.get_daily_key(timestamp)][Config.IN_KEY] = timestamp
+        self.save_data()
+    
+    
+    def cache_checkout(self, timestamp): 
+        self.load_data()
+        self.data[Config.get_daily_key(timestamp)][Config.OUT_KEY] = timestamp
+        self.save_data()
 
 
     def add_timestamp(self, frame, timestamp):
         self.last_frame = frame
         self.last_timestamp = timestamp
-        if not self.in_timestamp:
+        if not self.in_timestamp or not Config.is_timestamp_today(self.in_timestamp):
             self.set_arrival()
 
 
     def set_arrival(self):
         self.in_timestamp = self.last_timestamp
-        in_filename = strftime(Config.employee_archive_in_path(self.name))
-        log.info("Saving checkin image: {}".format(in_filename))
-        Image.fromarray(self.last_frame).save(in_filename)
+        path = Config.employee_archive_checkin_path(self.name, self.in_timestamp)
+        self.save_img_to_archive(path, self.last_frame)
+        self.cache_checkin(self.in_timestamp)
 
 
     def set_leaving(self):
         if self.in_timestamp == self.last_timestamp:
-            self.in_timestamp = None
-            log.warning("Only checking was found for {}".format(self.name))
-            return
-        out_filename = self.last_timestamp.strftime(Config.employee_archive_out_path(self.name))
-        log.info("Saving checkout image: {}".format(out_filename))
-        Image.fromarray(self.last_frame).save(out_filename)
+            log.warning("Only checkin was found for {}".format(self.name))
+        else: 
+            path = Config.employee_archive_checkout_path(self.name, self.last_timestamp)
+            self.save_img_to_archive(path, self.last_frame)
+        
+        self.cache_checkout(self.last_timestamp)
         self.in_timestamp = self.last_timestamp = None
-
 
 
 class Employees_manager:
@@ -87,7 +103,7 @@ class Employees_manager:
         self.employees_dir = self.conf.EMPLOYEES_DIR 
         self.employees = []
         self.load_employees()
-        self.cleanup_time_obj = datetime.strptime("23:59:59", '%H:%M:%S')
+        self.cleanup_time_obj = Config.get_cleanup_time()
         self.set_timer()
 
 
