@@ -66,7 +66,7 @@ class Employee:
         self.in_timestamp = self.last_timestamp
         in_filename = strftime(Config.employee_archive_in_path(self.name))
         log.info("Saving checkin image: {}".format(in_filename))
-        Image.fromarray(self.last_frame).save(in_filename, 'JPG')
+        Image.fromarray(self.last_frame).save(in_filename)
 
 
     def set_leaving(self):
@@ -76,7 +76,7 @@ class Employee:
             return
         out_filename = self.last_timestamp.strftime(Config.employee_archive_out_path(self.name))
         log.info("Saving checkout image: {}".format(out_filename))
-        Image.fromarray(self.last_frame).save(out_filename, 'JPG')
+        Image.fromarray(self.last_frame).save(out_filename)
         self.in_timestamp = self.last_timestamp = None
 
 

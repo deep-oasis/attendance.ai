@@ -1,4 +1,5 @@
 import os.path as osp
+import os
 import logging
 
 
@@ -27,8 +28,12 @@ class Config:
     def employee_data_path(name): return osp.join(Config.EMPLOYEES_DIR, name, "{}.json".format(name))
         
     @staticmethod
-    def employee_archive_in_path(name): return osp.join(Config.ARCHIVE_DIR, name, "%d-%m-%Y_%H-%M-%S_IN.jpg")
+    def employee_archive_in_path(name): 
+        archive_emp_dir = osp.join(Config.ARCHIVE_DIR, name)
+        os.makedirs(archive_emp_dir, exist_ok=True)
+        return osp.join(archive_emp_dir, "%d-%m-%Y_%H-%M-%S_IN.jpg")
     
     @staticmethod
-    def employee_archive_out_path(name): return osp.join(Config.ARCHIVE_DIR, name, "%d-%m-%Y_%H-%M-%S_OUT.jpg")
+    def employee_archive_out_path(name): 
+        return osp.join(Config.ARCHIVE_DIR, name, "%d-%m-%Y_%H-%M-%S_OUT.jpg")
     
