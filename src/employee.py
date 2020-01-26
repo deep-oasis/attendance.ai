@@ -14,11 +14,11 @@ class Employee:
     def __init__(self, name):
         self.name = name
         self.conf = Config()
-        self.img_path = self.conf.employee_img_path(name)  
-        self.encoded_img_path = self.conf.employee_encoded_img_path(name)  
+        self.img_path = self.conf.employee_img_path(name)
+        self.encoded_img_path = self.conf.employee_encoded_img_path(name)
         self.data_path = self.conf.employee_data_path(name)
         self.encoded_face = None
-        self.data = None
+        self.data = {}
         self.in_timestamp = None
         self.last_timestamp = None
 
@@ -60,15 +60,16 @@ class Employee:
         Image.fromarray(img).save(img_path)
 
 
-    def cache_checkin(self, timestamp): 
+    def cache_checkin(self, timestamp):
         self.load_data()
-        self.data[Config.get_daily_key(timestamp)][Config.IN_KEY] = timestamp
+        self.data[Config.get_daily_key(timestamp)] = {}
+        self.data[Config.get_daily_key(timestamp)][Config.IN_KEY] = str(timestamp.timestamp())
         self.save_data()
-    
-    
-    def cache_checkout(self, timestamp): 
+
+
+    def cache_checkout(self, timestamp):
         self.load_data()
-        self.data[Config.get_daily_key(timestamp)][Config.OUT_KEY] = timestamp
+        self.data[Config.get_daily_key(timestamp)][Config.OUT_KEY] = str(timestamp.timestamp())
         self.save_data()
 
 
@@ -89,10 +90,10 @@ class Employee:
     def set_leaving(self):
         if self.in_timestamp == self.last_timestamp:
             log.warning("Only checkin was found for {}".format(self.name))
-        else: 
+        else:
             path = Config.employee_archive_checkout_path(self.name, self.last_timestamp)
             self.save_img_to_archive(path, self.last_frame)
-        
+
         self.cache_checkout(self.last_timestamp)
         self.in_timestamp = self.last_timestamp = None
 
@@ -100,7 +101,7 @@ class Employee:
 class Employees_manager:
     def __init__(self):
         self.conf = Config()
-        self.employees_dir = self.conf.EMPLOYEES_DIR 
+        self.employees_dir = self.conf.EMPLOYEES_DIR
         self.employees = []
         self.load_employees()
         self.cleanup_time_obj = Config.get_cleanup_time()
@@ -108,7 +109,7 @@ class Employees_manager:
 
 
     def set_timer(self):
-        delta = self.cleanup_time_obj - datetime.now() 
+        delta = self.cleanup_time_obj - datetime.now()
         self.timer = Timer(delta.seconds, self.set_leavings)
         self.timer.start()
 
@@ -122,12 +123,12 @@ class Employees_manager:
 
     def load_employees(self):
         log.info("Getting all existed employees")
-        
+
         # Check if there is an employees dir
         if not osp.exists(self.employees_dir):
             log.info("Creating employees directory")
             os.makedirs(self.employees_dir)
-        
+
         # Get all saved emplyees directories
         saved_employees = os.listdir(self.employees_dir)
         if not len(saved_employees): return None

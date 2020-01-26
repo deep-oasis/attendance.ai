@@ -59,7 +59,7 @@ class Recognizer:
             face_locations = self.face_detector(face_image)
         else:
             face_locations = [self.css_to_rect(face_location) for face_location in known_face_locations]
-            
+
         pose_predictor = dlib.shape_predictor(self.predictor)
         return [pose_predictor(face_image, face_location) for face_location in face_locations]
 
@@ -71,7 +71,7 @@ class Recognizer:
 
     def load_faces(self):
         for emp in self.employees:
-            if not emp.encoded_face:
+            if not emp.encoded_face.any():
                 log.info("{}'s face did not encoded yet. encoding and saving.".format(emp.name))
                 img = self.load_img(emp.img_path)
                 emp.save_encoded_face(self.faces_encodings_from_img(img)[0])
@@ -87,14 +87,15 @@ class Recognizer:
         log.info("Found {} faces".format(len(face_loc_list)))
         faces_encodings = self.faces_encodings_from_img(self.np_output, face_loc_list)
         for emp in self.employees:
-            self.compare_faces(emp, faces_encodings) 
+            self.compare_faces(emp, faces_encodings)
 
 
     def run(self):
+        log.info("Running!")
         while True:
             # Get a new frame (into self.np_output)
             self.camera.capture(self.np_output, format="rgb")
             face_loc_list = self.face_locations(self.np_output)
-            
-            if face_loc_list: 
+
+            if face_loc_list:
                 self.analyze_frame(face_loc_list)
