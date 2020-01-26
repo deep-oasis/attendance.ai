@@ -28,8 +28,8 @@ class Config:
     CLEANUP_TIME = "23:59:59"
 
     # dictionaries keys
-    IN_KEY = "IN_KEY"
-    OUT_KEY = "OUT_KEY"
+    IN_KEY = "CHECKIN"
+    OUT_KEY = "CHECKOUT"
 
     @staticmethod
     def employee_img_path(name): 

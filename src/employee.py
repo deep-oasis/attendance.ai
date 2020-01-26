@@ -37,9 +37,9 @@ class Employee:
         log.info("Loading {}'s data".format(self.name))
         if not osp.exists(self.data_path):
             log.info("No employee data was found")
-            return
-        with open(self.data_path, 'r') as file:
-            self.data = json.load(file)
+        else: 
+            with open(self.data_path, 'r') as file:
+                self.data = json.load(file)
 
 
     def load_encoding(self):
@@ -60,15 +60,21 @@ class Employee:
         Image.fromarray(img).save(img_path)
 
 
+    def create_data_key_entry(self, timestamp):
+        if not self.data.get(Config.get_daily_key(timestamp)): 
+            self.data[Config.get_daily_key(timestamp)] = {Config.IN_KEY : None, Config.OUT_KEY : None}
+
+
     def cache_checkin(self, timestamp):
         self.load_data()
-        self.data[Config.get_daily_key(timestamp)] = {}
+        self.create_data_key_entry(timestamp)
         self.data[Config.get_daily_key(timestamp)][Config.IN_KEY] = str(timestamp.timestamp())
         self.save_data()
 
 
     def cache_checkout(self, timestamp):
         self.load_data()
+        self.create_data_key_entry(timestamp)
         self.data[Config.get_daily_key(timestamp)][Config.OUT_KEY] = str(timestamp.timestamp())
         self.save_data()
 
